@@ -31,7 +31,7 @@ def vote(request):
         favourite_month = int(request.POST["month_choice"])
     )
     filled_questionnaire.save()
-    return HttpResponseRedirect(reverse('index'))
+    return HttpResponseRedirect(reverse('results'))
 
 
 def results(request):
@@ -73,7 +73,13 @@ def results(request):
     # Calculate percentages and format data for response
     day_results = []
     for k, v in day_frequencies.items():
-        day_results.append({"name": calendar.day_name[k], "count": v, "percent": v / total * 100 })
+        percent = v / total * 100
+        day_results.append({
+            "day_number": k,
+            "name": calendar.day_name[k],
+            "count": v, "percent": "{:.1f}".format(percent)})
+    day_results = sorted(day_results, key=lambda k: k['day_number'])
+
 
     # results = FilledQuestionnaire.objects.values("favourite_month") \
     #     .annotate(Count('favourite_month')) \
@@ -90,16 +96,25 @@ def results(request):
     # Calculate percentages and format data for HttpResponse
     month_results = []
     for k, v in month_frequencies.items():
-        month_results.append({"name": calendar.month_name[k], "count": v, "percent": v / total * 100})
+        percent = v / total * 100
+        month_results.append({
+            "month_number": k,
+            "name": calendar.month_name[k],
+            "count": v,
+            "percent": "{:.1f}".format(percent)})
+    month_results = sorted(month_results, key=lambda k: k['month_number'])
+
 
     # Calulate the most popular day of the week for each month
     most_popular_days_by_month = []
     for month, day_frequencies in day_frequencies_by_month.items():
         most_popular_day = max(day_frequencies.keys(), key=(lambda k: day_frequencies[k]))
         most_popular_days_by_month.append({
-            "month": calendar.month_name[month],
+            "month_number": month,
+            "month_name": calendar.month_name[month],
             "most_popular_day": calendar.day_name[most_popular_day]
         })
+    most_popular_days_by_month = sorted(most_popular_days_by_month, key=lambda k: k['month_number'])
 
     context = {
         "month_results": month_results,
