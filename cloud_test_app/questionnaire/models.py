@@ -6,3 +6,5 @@ class FilledQuestionnaire(models.Model):
     MONTH_CHOICES = tuple([(i, calendar.month_name[i]) for i in range(1,13)])
     favourite_day = models.IntegerField(choices=DAY_CHOICES)
     favourite_month = models.IntegerField(choices=MONTH_CHOICES)
+
+    # TODO: define __str__() method for nice output in admin
