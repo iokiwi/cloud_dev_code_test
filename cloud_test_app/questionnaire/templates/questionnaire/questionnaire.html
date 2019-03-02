@@ -4,7 +4,23 @@
 <div class="container main-body">
 
   <div class="index-main">
-    hazzah!
+    <h1 class="index-heading">Simple Questionnaire</h1>
+    <form action="{% url 'vote' %}" method="post">
+        {% csrf_token %}
+        <label for="">My favourite month.</label>
+        <select name="month_choice">
+            {% for choice in month_choices %}
+                <option value="{{choice.0}}">{{choice.1}}</option>
+            {% endfor %}
+        </select>
+        <label for="">My favourite day of the week</label>
+        <select name="day_choice">
+            {% for choice in day_choices %}
+                <option value="{{choice.0}}">{{choice.1}}</option>
+            {% endfor %}
+        </select>
+        <input type="submit" value="Submit">
+    <form>
   </div>
 </div>
 {% endblock %}
