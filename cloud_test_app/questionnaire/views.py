@@ -5,7 +5,8 @@ from .models import FilledQuestionnaire
 
 def index(request):
     #TODO: make this a real number:
-    num_answers = 0
+
+    num_answers = FilledQuestionnaire.objects.all().count()
     context = {
         'title': "Basic Questions!",
         'num_answers': num_answers,
