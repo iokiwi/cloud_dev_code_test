@@ -6,24 +6,24 @@
   <div class="index-main">
     <h1 class="index-heading">Simple Questionnaire</h1>
     <p>These are the results for the innane questionnare</p>
-    <a href="{% url 'index' %}">back to index</a>
+    <a href="{% url 'index' %}" class="btn btn-primary">back to index</a>
     <h2>Results</h2>
     <h3>Months</h3>
     <ul>
       {% for result in month_results %}
-        <li>{{ result }}</li>
+        <li>{{ result.name }}: {{ result.count }} ({{ result.percent }}%)</li>
       {% endfor %}
     </ul>
     <h3>Days</h3>
     <ul>
       {% for result in day_results %}
-        <li>{{ result }}</li>
+        <li>{{ result.name }}: {{ result.count }} ({{ result.percent }}%)</li>
       {% endfor %}
     </ul>
     <h3>Fav day related to month</h3>
     <ul>
       {% for result in days_by_month %}
-        <li>{{ result }}</li>
+        <li>{{ result.month }}: {{ result.most_popular_day }}</li>
       {% endfor %}
     </ul>
   </div>
