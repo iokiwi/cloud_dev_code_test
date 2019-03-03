@@ -3,6 +3,7 @@ import os
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "cloud_test.settings") # noqa
 import django
 django.setup() # noqa
+import re
 
 from io import StringIO
 from time import sleep
@@ -55,8 +56,15 @@ def get_migration_data():
         # If the migration is from the locking app, also add it to:
         #   locking_migrations
 
-        needed_migrations = [m for m in migrations if "[ ]" in m ]
-        locking_migrations = [m for m in migrations if "locking" in m ]
+
+        needed_migrations = []
+        locking_migrations = []
+        for migration in migrations:
+            if "[ ]" in migration:
+                needed_migrations.append(migration)
+                if "locking" in migration:
+                    locking_migrations.append(migration)
+
         num_needed_migrations = len(needed_migrations)
 
         return {
