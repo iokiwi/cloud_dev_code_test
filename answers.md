@@ -1,4 +1,4 @@
-#Answers
+## Answers
 
 **Explain how the config for this app works, and why when using docker compose might this be a good way to configure rather than a config file**
 
@@ -44,3 +44,52 @@ The configuration in the dockerfile means that starting docker without passing a
 ENTRYPOINT ["/opt/entrypoint.sh"]
 CMD ["--start-service"]
 ```
+
+## Closing Remarks / Reflection and Self Analysis
+
+** Results View **
+Initially I attempted to get the results in in the desired format by leveraging SQL's GROUP and COUNT functionality. While the code is now commented out I have left it in for reference only - under normal circumstances would remove it to both avoid shipping dead code and for better readability.
+
+```
+    # results = FilledQuestionnaire.objects.values("favourite_day") \
+    #     .annotate(Count('favourite_day')) \
+    #     .order_by('favourite_day') 
+    
+    # day_results = []
+    # for result in results:
+    #     day_results.append({
+    #         "name": calendar.day_name[result["favourite_day"]],
+    #         "count": result["favourite_day__count"],
+    #         "percent": result["favourite_day__count"] / total * 100,
+    #     })
+```
+
+There were a couple of reasons I didn't go with this method in the end.
+
+* I still had to iterate over the results to calculate the percentages. I think its possible to get the percentages with some SQL magic - some subqueries and more good SQL stuff looking at some results on stack overflow. I didn't go down this path as the time investment to formulate the correct SQL and furthermore figure out this operation via the Django ORM.
+* I breifly considered using the `raw` interface to run SQL directly instead of interfacing with the ORM but decided strongly against it for maintainability and portability reasons (ie, migrating the underlying database from SQLite3 to PostgreSQL, MySQL or something more production-worthy)
+* I was querying the db multiple times for what was essentially different views of the same results - for the month results, for the day results and for the Days by Month results.
+
+I decided the simplest way was to get the full results set and do some calculations in the results view - at least to get an MVP up and running. There may be a trade off with computation / memory usage for large datasets by storing them in memory and iterating over them.
+
+At some point, I refactored how / where I was getting the total number of FilledQuestionnaires; Getting the total count upfront. 
+
+```
+results = FilledQuestionnaire.objects.all()
+total = results.count()
+```
+
+After making this refactor I think it would be possible to do all of the calculations and formatting for the results in a single iteration of the list. I haven't decided if this is any better - might be worse for readability and im not sure how large the computation / memory gains would be in practice. This would be something to explore later.
+
+**Docker file**
+
+`# TODO: install django app requirements and gunicorn`
+
+I interpretted the TODO note (`# TODO: install django app requirements and gunicorn`) very literally - installing requirements from `requirements.txt` and installing gunicorn in two seperate operations. 
+
+```
+RUN pip install --trusted-host pypi.python.org -r /opt/cloud_test_app/requirements.txt
+RUN pip install --trusted-host pypi.python.org gunicorn
+```
+
+It works but, unless there is a specific reason to keep the installation of gunicorn seperate from the rest of the requirements I would probably list gunicorn in `requirements.txt` and allow it to be installed along with all of the other packages.
